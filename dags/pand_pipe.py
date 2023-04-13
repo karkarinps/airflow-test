@@ -8,10 +8,12 @@ import pandas as pd
 import numpy as np
 import psycopg2
 
-
+# define nececesary variables
 extr_path = "C://Users/Uldum/Downloads/churn_train.txt"
 dest_path = "C://Users/Uldum/Proc_data/churn_train_last.csv"
 db_path = "C://Users/Uldum/DWH/datascience.db"
+table_name = 'churn_records'
+creation_table = f'''CREATE TABLE IF NOT EXISTS {table_name} ('''
 
 # function to remove highly correlated columns. Will be used in main function
 def trimm_correlated(df_in, threshold):
@@ -57,6 +59,10 @@ def extr_transf():
     for column in df_dum.columns:
         df_dum = df_dum[df_dum[column]<=bounds[col]['upper']]
         df_dum = df_dum[df_dum[column]>=bounds[col]['lower']]
+        # add column names to the creation_table string for Postgres DB
+        creation_table += f"{column} DECIMAL NOT NULL, "
+        creation_table = creation_table[:-2]
+        creation_table += ');'
 
     # apply anti-corr function to exclude correlations between columns
     df_last = trimm_correlated(df_dum, 0.95)
@@ -66,24 +72,15 @@ def extr_transf():
 
 
 def load_data():
+    # connect to db with posgres lib
     conn = psycopg2.connect(db_path)
     c = conn.cursor()
-    c.execute('''
-                CREATE TABLE IF NOT EXISTS churn_records (
-                    client_id INTEGER NOT NULL,
-                    month_number INTEGER NOT NULL,
-                    lifetime INTEGER NOT NULL,
-                    beh_score NUMERIC NOT NULL,
-                    avg_transaction_sum BIGINT,
-                    salary_bucket BIGINT,
-                    age INTEGER,
-                    region_Moscow INTEGER,
-                    region_Regions INTEGER,
-                    channel_Branch INTEGER
-                );
+    # create table
+    c.execute(f'''{creation_table}
              ''')
+    # read and load data to SQL db
     records = pd.read_csv(dest_path)
-    records.to_sql('churn_records', conn, if_exists='append', index=True)
+    records.to_sql(table_name, conn, if_exists='append', index=True)
 
 
 default_args = {
