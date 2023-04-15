@@ -26,7 +26,7 @@ def trimm_correlated(df_in, threshold):
 # main extract-transform function
 def extr_transf():
     # read dataset from certain folder
-    df = pd.read_csv(dest_path, delimiter='\t')
+    df = pd.read_csv(extr_path, delimiter='\t')
     # dind and drop duplicated rows in dataframe
     df_1 = df.drop_duplicates()
     # find and fill NA values in dataframe with mean values for each column
@@ -93,19 +93,19 @@ ingestion_dag = DAG(
     'ETL',
     default_args=default_args,
     description='First ETL with Airflow and Pandas',
-    schedule=timedelta(days=1),
+    schedule_interval='@daily',
     catchup=False
 )
 
 task_1 = PythonOperator(
-    task_id='Extract-transform task',
+    task_id='ExtractTransformTask',
     python_callable=extr_transf,
     dag=ingestion_dag,
 )
 
 
 task_2 = PythonOperator(
-    task_id='Load to DB',
+    task_id='LoadToDB',
     python_callable=load_data,
     dag=ingestion_dag,
 )
