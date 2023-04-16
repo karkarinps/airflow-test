@@ -9,9 +9,9 @@ import numpy as np
 import psycopg2
 
 # define nececesary variables
-extr_path = "C://Users/Uldum/Downloads/churn_train.txt"
-dest_path = "C://Users/Uldum/Proc_data/churn_train_last.csv"
-db_path = "C://Users/Uldum/DWH/datascience.db"
+extr_path = "churn_train.txt"
+dest_path = "churn_train_last.csv"
+db_path = "datascience.db"
 table_name = 'churn_records'
 creation_table = f'''CREATE TABLE IF NOT EXISTS {table_name} ('''
 

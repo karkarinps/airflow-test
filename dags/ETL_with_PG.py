@@ -10,8 +10,8 @@ from airflow.operators.python import PythonOperator
 import pandas as pd
 
 
-extr_path = "F://Git/airflow-test/dags/Orders.csv"
-dest_path = "F://Git/airflow-test/dags/orders_1.csv"
+extr_path = "Orders.csv"
+dest_path = "orders_1.csv"
 
 
 def post_table_create():
